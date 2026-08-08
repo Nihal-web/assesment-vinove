@@ -1,0 +1,103 @@
+<div class="container">
+  <header>
+    <h1>Order Processing System</h1>
+    <div class="header-actions">
+      <select class="status-select" [(ngModel)]="statusFilter" (change)="fetchOrders(1)">
+        <option value="">All Statuses</option>
+        <option value="PLACED">Placed</option>
+        <option value="CANCELLED">Cancelled</option>
+        <option value="NEEDS_ATTENTION">Needs Attention</option>
+        <option value="SHIPPED">Shipped</option>
+        <option value="IN_PROGRESS">In Progress</option>
+      </select>
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv" style="display: none;">
+      <button class="btn btn-primary" (click)="fileInput.click()">Process Bulk CSV</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard Stats Panel -->
+    <div class="dashboard-stats" *ngIf="!loading && orders.length > 0">
+      <div class="chart-container">
+        <canvas id="statsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="orders-list">
+      <div *ngIf="loading" class="loader">Loading orders...</div>
+      
+      <table *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" [ngClass]="order.status.toLowerCase()">
+            <td>{{ order.order_id }}</td>
+            <td><strong>{{ order.status }}</strong></td>
+            <td>${{ order.amount }}</td>
+            <td>{{ order.created_at | date:'medium' }}</td>
+            <td>
+              <button class="btn" (click)="viewDetails(order.order_id)">Details</button>
+              <button class="btn btn-success" *ngIf="order.status === 'PLACED'" (click)="markShipped(order.order_id)">Mark Shipped</button>
+              <button class="btn btn-danger" *ngIf="order.status === 'NEEDS_ATTENTION'" (click)="retryUndo(order.order_id)">Retry Undo</button>
+            </td>
+          </tr>
+          <tr *ngIf="orders.length === 0">
+            <td colspan="5" style="text-align: center; padding: 20px;">No orders found. Click "Process Bulk CSV" to start.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn" [disabled]="page === 1" (click)="fetchOrders(page - 1)">Previous</button>
+        <span>Page {{ page }} of {{ totalPages }}</span>
+        <button class="btn" [disabled]="page === totalPages" (click)="fetchOrders(page + 1)">Next</button>
+      </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-backdrop" *ngIf="selectedOrder" (click)="closeDetails()">
+      <div class="details-panel" (click)="$event.stopPropagation()">
+        <div class="details-header">
+        <h2>Order Details: {{ selectedOrder.order_id }}</h2>
+        <button class="btn" (click)="closeDetails()">Close</button>
+      </div>
+      
+      <div class="order-info">
+        <p><strong>SKU:</strong> {{ selectedOrder.sku }}</p>
+        <p><strong>Qty:</strong> {{ selectedOrder.qty }}</p>
+        <p><strong>Status:</strong> {{ selectedOrder.status }}</p>
+      </div>
+
+      <h3>Saga Execution Timeline</h3>
+      <table class="steps-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Action</th>
+            <th>Status</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let step of selectedOrderSteps" [ngClass]="step.status.toLowerCase()">
+            <td>{{ step.service_name | titlecase }}</td>
+            <td>{{ step.action }}</td>
+            <td><strong>{{ step.status }}</strong></td>
+            <td>{{ step.updated_at | date:'mediumTime' }}</td>
+          </tr>
+          <tr *ngIf="selectedOrderSteps.length === 0">
+            <td colspan="4">No steps recorded yet.</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,17 @@
+{
+  "name": "coordinator-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0",
+    "multer": "^2.2.0",
+    "mysql2": "^3.9.0"
+  }
+}

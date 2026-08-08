@@ -1,0 +1,19 @@
+{
+  "name": "order-processing-system",
+  "version": "1.0.0",
+  "description": "Distributed Order Processing System",
+  "scripts": {
+    "start:all": "npm-run-all --parallel start:coordinator start:order start:inventory start:payment start:shipping start:notification start:frontend",
+    "start:coordinator": "cd backend/coordinator && npm start",
+    "start:order": "cd backend/order-service && npm start",
+    "start:inventory": "cd backend/inventory-service && npm start",
+    "start:payment": "cd backend/payment-service && npm start",
+    "start:shipping": "cd backend/shipping-service && npm start",
+    "start:notification": "cd backend/notification-service && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd backend/coordinator && npm install && cd ../order-service && npm install && cd ../inventory-service && npm install && cd ../payment-service && npm install && cd ../shipping-service && npm install && cd ../notification-service && npm install && cd ../../frontend && npm install"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
